@@ -20,9 +20,9 @@ struct TodoView: View, SizedViewProtocol {
     @State private var viewModel: TodoViewModel
     @State var isAddingTodo: Bool = false
     @State private var selectedColor: Color = Color(.init())
-    @State private var isGenerating: Bool = true
+    @State private var isGenerating: Bool = false
     
-    // Refactor to only the viewModel have acess
+    // TODO: Refactor to only the viewModel have acess
     @Query(
         sort: [
             SortDescriptor(\Todo.isCompleted, order: .forward),
@@ -51,37 +51,40 @@ struct TodoView: View, SizedViewProtocol {
                     .animation(isGenerating ? nil : .smooth, value: todos)
                     .listStyle(.plain)
                     .scrollIndicators(.hidden)
-                    .onChange(of: viewModel.lastAddedTodoID) { _, newId in
-                        withAnimation(.smooth(duration: 0.3).delay(0.2)) {
-                            proxy.scrollTo(newId, anchor: .bottom)
-                        }
-                    }
+//                    .onChange(of: viewModel.lastAddedTodoID) { _, newId in
+//                        withAnimation(.smooth(duration: 0.3).delay(0.2)) {
+//                            proxy.scrollTo(newId, anchor: .bottom)
+//                        }
+//                    }
                 }
                 TodoViewButton(isAddingTodo: $isAddingTodo, screenSize: screenSize)
-                {
-                    await viewModel.deleteAllTodo()
-                }
             }
             .sensoryFeedback(.success, trigger: todos)
             .sheet(isPresented: $isAddingTodo) {
                 withAnimation(.snappy) {
-                    AddTodoSheetView(height: screenSize.height * 0.28, screenWidth: screenSize.width, screenHeight: screenSize.height, addTask: { text in await viewModel.createTodo(task: text) })
+                    AddTodoSheetView(
+                        height: screenSize.height * 0.28,
+                        screenWidth: screenSize.width, screenHeight: screenSize.height,
+                        createTodo: { userInputText in await
+                            viewModel.createTodo(task: userInputText)
+                        },
+                        startTaskGeneration: { prompt in
+                            isGenerating = true
+                            await viewModel.startTaskGeneration(prompt: prompt)
+                            isGenerating = false
+                        },
+                        prewarm: { viewModel.prewarm() }
+                    )
                 }
             }
+            .glassEffect(isEnabled: false)
             .glassEffectTransition(.identity, isEnabled: false)
             .navigationTitle("Todo List")
-            .task { // move this
-                viewModel.prewarm()
-                Task {
-                    try await viewModel.generateTasks(prompt: Prompt("I need to Learning about multithreading in Java arning and do a connection with a Kafka server"))
-                }
-                isGenerating = false
-            }
         }
     }
     
     private func cleanForGeneratingState() {
-        
+
     }
 }
 

@@ -6,29 +6,27 @@
 //
 
 import SwiftUI
-//
-//  TextFieldSheet.swift
-//  ProductivityWidgets
-//
-//  Created by Gabriel Amaral on 30/04/25.
-//
-
-import SwiftUI
 
 struct AddTodoSheetView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var text: String = ""
     private let createTodo: (String) async -> Void
+    private var startTaskGeneration: (_ prompt: String) async -> Void
+    private var prewarm: () -> Void
     private let screenWidth: CGFloat
     private let screenHeight: CGFloat
     private let initialHeight: CGFloat
     private let lineHeight: CGFloat = 24
+    @State private var isPrompting: Bool = false
+
     
-    init(height: CGFloat, screenWidth: CGFloat, screenHeight: CGFloat, addTask: @escaping (String) async -> Void) {
+    init(height: CGFloat, screenWidth: CGFloat, screenHeight: CGFloat, createTodo: @escaping (String) async -> Void, startTaskGeneration: @escaping (String) async -> Void, prewarm: @escaping () -> Void) {
         self.initialHeight = height
-        self.createTodo = addTask
+        self.createTodo = createTodo
         self.screenWidth = screenWidth
         self.screenHeight = screenHeight
+        self.startTaskGeneration = startTaskGeneration
+        self.prewarm = prewarm
     }
     
     private var currentSheetHeight: CGFloat {
@@ -40,12 +38,11 @@ struct AddTodoSheetView: View {
         }
         return initialHeight
     }
-
     
     var body: some View {
         VStack {
             VStack{
-                TextField("Enter task...", text: $text, axis: .vertical)
+                TextField(isPrompting ? "Enter your prompt..." : "Enter task...", text: $text, axis: .vertical)
                     .padding(.horizontal)
                     .padding(.vertical)
                     .frame(minHeight: currentSheetHeight * 0.4)
@@ -60,8 +57,12 @@ struct AddTodoSheetView: View {
             HStack {
                 Spacer()
                 Button {
+                    isPrompting.toggle()
+                } label: {  }
+                    .buttonStyle(.customStyle(rank: .appleInteliggence, width: screenWidth * 0.12, dynamicBool: isPrompting))
+                Button {
                     Task {
-                        await createTodo(text)
+                      await isPrompting ? startTaskGeneration(text) : createTodo(text)
                     }
                     dismiss()
                 } label: {  }
@@ -73,5 +74,8 @@ struct AddTodoSheetView: View {
         .presentationDetents([.height(currentSheetHeight)])
         .presentationBackgroundInteraction(.enabled)
         .presentationCornerRadius(15)
+        .task {
+            prewarm()
+        }
     }
 }

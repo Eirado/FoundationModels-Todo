@@ -10,6 +10,7 @@ import SwiftUI
 enum ButtonRank {
     case primary
     case sendLoading
+    case appleInteliggence
 }
 
 struct ButtonStyleConfig {
@@ -22,8 +23,9 @@ struct ButtonStyleConfig {
     var borderColor: Color?
     var borderWidth: CGFloat
     var isCircular: Bool
+    var isToggle: Bool
     
-    static func config(for rank: ButtonRank) -> ButtonStyleConfig {
+    static func config(for rank: ButtonRank, isToggle: Bool) -> ButtonStyleConfig {
         switch rank {
         case .primary:
             return ButtonStyleConfig(
@@ -35,7 +37,9 @@ struct ButtonStyleConfig {
                 font: .headline,
                 borderColor: nil,
                 borderWidth: 0,
-                isCircular: true
+                isCircular: true,
+                isToggle: isToggle
+                
             )
         case .sendLoading:
             return ButtonStyleConfig(
@@ -47,10 +51,25 @@ struct ButtonStyleConfig {
                 font: .headline,
                 borderColor: nil,
                 borderWidth: 0,
-                isCircular: true
+                isCircular: true,
+                isToggle: isToggle
             )
             
-        
+            
+        case .appleInteliggence:
+            return ButtonStyleConfig(
+                backgroundColor: .white,
+                foregroundColor: .black,
+                cornerRadius: 0,
+                pressedScale: 0.8,
+                pressedOpacity: 1,
+                font: .headline,
+                borderColor: nil,
+                borderWidth: 0,
+                isCircular: true,
+                isToggle: isToggle
+                
+            )
         }
     }
 }
@@ -135,77 +154,142 @@ private extension CustomButtonStyle {
     }
 }
 
+private extension CustomButtonStyle {
+    @ViewBuilder
+    static func appleIntelligenceButton(
+        configuration: ButtonStyleConfiguration,
+        config: ButtonStyleConfig,
+        width: CGFloat,
+        gradientColors: [Color]
+    ) -> some View {
+        
+        AnimatedAppleIntelligenceButton( // TODO: horrible idea needs Refactoring
+            configuration: configuration,
+            config: config,
+            width: width,
+            gradientColors: gradientColors
+        )
+    }
+}
+
+private struct AnimatedAppleIntelligenceButton: View {
+    let configuration: ButtonStyleConfiguration
+    let config: ButtonStyleConfig
+    let width: CGFloat
+    let gradientColors: [Color]
+    
+    @State private var rotation: Double = 0
+    
+    var body: some View {
+        configuration.label
+        ZStack {
+            
+            Circle()
+                .fill(AngularGradient(
+                    colors: gradientColors,
+                    center: .center,
+                    angle: .degrees(360)))
+                .frame(width: width, height: width)
+                .rotationEffect(.degrees(rotation))
+                .blur(radius: config.isToggle ? 10 : 0)
+            
+            Circle()
+                .fill(config.backgroundColor)
+                .frame(width: width, height: width)
+            
+            Image("AppleIntelligenceIcon")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: width * 0.7, height: width * 0.7)
+        }
+        .scaleEffect(configuration.isPressed ? config.pressedScale : 1.0)
+        .onAppear {
+            withAnimation(Animation.linear(duration: 2).repeatForever(autoreverses: false)) {
+                rotation = 360
+            }
+        }
+    }
+}
 
 extension ButtonStyle where Self == CustomButtonStyle {
     static func customStyle(
         rank: ButtonRank = .primary,
         width: CGFloat = .zero,
         height: CGFloat = .zero,
-        screenSafeAreas: EdgeInsets = .init(.zero)
+        screenSafeAreas: EdgeInsets = .init(.zero),
+        dynamicBool: Bool = false
     ) -> Self {
-        CustomButtonStyle(rank: rank, width: width, height: height, screenSafeAreas: screenSafeAreas)
+        CustomButtonStyle(rank: rank, width: width, height: height, screenSafeAreas: screenSafeAreas, dynamicBool: dynamicBool)
     }
 }
 
 struct CustomButtonStyle: ButtonStyle {
     let rank: ButtonRank
-        let height: CGFloat
-        let width: CGFloat
-        let screenSafeAreas: EdgeInsets
-        private let config: ButtonStyleConfig
-        
-        init(rank: ButtonRank, width: CGFloat, height: CGFloat, screenSafeAreas: EdgeInsets) {
-            self.rank = rank
-            self.width = width
-            self.height = height
-            self.screenSafeAreas = screenSafeAreas
-            self.config = ButtonStyleConfig.config(for: rank)
-        }
+    let height: CGFloat
+    let width: CGFloat
+    let screenSafeAreas: EdgeInsets
+    var dynamicBool: Bool
+    
+    
+    init(rank: ButtonRank, width: CGFloat, height: CGFloat, screenSafeAreas: EdgeInsets, dynamicBool: Bool) {
+        self.rank = rank
+        self.width = width
+        self.height = height
+        self.screenSafeAreas = screenSafeAreas
+        self.dynamicBool = dynamicBool
+    }
     
     func makeBody(configuration: ButtonStyleConfiguration) -> some View {
+        
+        let config = ButtonStyleConfig.config(for: rank, isToggle: dynamicBool)
+        
+        let gradientColors: [Color] = [
+            .yellow.opacity(0.5),.mint.opacity(0.9),.yellow.opacity(0.5),
+            .purple,.orange,.pink,.purple,.cyan,.purple,.pink,.orange,
+            .yellow.opacity(0.5),.mint.opacity(0.9),.yellow.opacity(0.5)
+        ]
+        
+        
         switch rank {
         case .primary:
-            CustomButtonStyle.addButtonDumping(configuration: configuration, config: config, width: width)
+            CustomButtonStyle.addButtonDumping(
+                configuration: configuration,
+                config: config,
+                width: width
+            )
         case .sendLoading:
-            CustomButtonStyle.sendButtonDumping(configuration: configuration, config: config, width: width)
+            CustomButtonStyle.sendButtonDumping(
+                configuration: configuration,
+                config: config,
+                width: width
+            )
+        case .appleInteliggence:
+            CustomButtonStyle.appleIntelligenceButton(
+                configuration: configuration,
+                config: config,
+                width: width,
+                gradientColors: gradientColors
+            )
         }
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 struct buttonPreview: View {
+    @State var isToggle: Bool = false
     var body: some View {
         ZStack {
             GeometryReader { geometry in
                 ZStack {
-                    Color.gray
+                    Color.black
                         .ignoresSafeArea()
                     VStack(alignment: .center, spacing: 10) {
                         Button("") {
-
+                            isToggle.toggle()
                         }
-                        .buttonStyle(.customStyle(rank: .primary, width: geometry.size.width * 0.4))
-
+                        .buttonStyle(.customStyle(rank: .appleInteliggence, width: geometry.size.width * 0.4, dynamicBool: isToggle))
+                        
                     }.frame(width: geometry.size.width, height: geometry.size.height )
-
+                    
                 }
             }
         }
