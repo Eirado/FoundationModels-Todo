@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 import WidgetKit
 // SHOULD GET BIGGER WHEN HAS A BIT TEXT
 // SHOULD BE EDITED WITH A SHEET
@@ -23,6 +24,8 @@ struct TodoRowView: View, Equatable{
             Button {
                 withAnimation(.snappy) {
                     todo.isCompleted.toggle()
+                    // Save first: the widget reads the store from its own process.
+                    try? context.save()
                     WidgetCenter.shared.reloadAllTimelines()
                 }
             } label: {
@@ -42,6 +45,7 @@ struct TodoRowView: View, Equatable{
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button("", systemImage: "trash") {
                 context.delete(todo)
+                try? context.save()
                 WidgetCenter.shared.reloadAllTimelines()
             }
             .tint(.red)

@@ -19,7 +19,7 @@ struct ConfigurationAppIntent: WidgetConfigurationIntent {
 
 
 struct ToggleTodoTask: AppIntent {
-    static var title: LocalizedStringResource = .init(stringLiteral: "Toggle's Todo State")
+    static let title: LocalizedStringResource = "Toggle's Todo State"
     
     @Parameter(title: "Todo ID")
     var id: String

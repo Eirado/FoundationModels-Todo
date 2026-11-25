@@ -11,8 +11,11 @@ import SwiftUI
 @MainActor
 final class TodoViewFactory {
     static public func makeTodoView(size: CGSize, safeArea: EdgeInsets, context: ModelContext) -> TodoView {
+        TodoView(size: size, safeArea: safeArea, viewModel: makeViewModel(context: context))
+    }
+
+    static func makeViewModel(context: ModelContext) -> TodoViewModel {
         let repository = TodoRepository(context: context)
-        let viewModel = TodoViewModel(todoRepository: repository, modelContext: context) // Fixed: was "Mode"
-        return TodoView(size: size, safeArea: safeArea, viewModel: viewModel)
+        return TodoViewModel(todoRepository: repository, modelContext: context) // Fixed: was "Mode"
     }
 }

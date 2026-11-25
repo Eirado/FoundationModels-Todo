@@ -8,11 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var context
+    // Built once here: built inside GeometryReader, a new view model and language model session
+    // were made on every layout pass, then thrown away.
+    @State private var viewModel = TodoViewFactory.makeViewModel(
+        context: ModelContainerProvider.shared.modelContainer.mainContext
+    )
 
     var body: some View {
         GeometryReader { geometry in
-            TodoViewFactory.makeTodoView(size: geometry.size, safeArea: geometry.safeAreaInsets, context: context)
+            TodoView(size: geometry.size, safeArea: geometry.safeAreaInsets, viewModel: viewModel)
         }
     }
 }

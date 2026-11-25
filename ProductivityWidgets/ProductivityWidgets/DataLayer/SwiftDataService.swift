@@ -12,6 +12,8 @@ enum PersistenceError: Error {
     case contextError
 }
 
+// Main actor: the repository works on SwiftData's main context, which isn't thread-safe.
+@MainActor
 public protocol TodoRepositoryProtocol {
     func createTodo(task: String) async throws -> Todo
     func fetchAllTodos() async throws -> [Todo]
@@ -27,6 +29,7 @@ extension TodoRepositoryProtocol {
 }
 
 
+@MainActor
 final class TodoRepository: TodoRepositoryProtocol {
     weak private var context: ModelContext?
 

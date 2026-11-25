@@ -30,10 +30,16 @@ final class AISessionManager: AIModelProtocol {
     public func prewarm() {
         session.prewarm()
     }
+
+    // A session keeps every prompt and answer in its transcript: reusing one fills the model's
+    // context window and carries old goals into new lists, so each goal gets a new session.
+    public func resetSession() {
+        session = LanguageModelSession(instructions: instructions)
+    }
 }
 
 public struct TaskInstruction {
-    static var instruction: Instructions = Instructions {
+    static let instruction: Instructions = Instructions {
         
             """
             

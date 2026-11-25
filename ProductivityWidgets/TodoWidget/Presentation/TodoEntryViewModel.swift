@@ -9,8 +9,8 @@ import SwiftData
 import Foundation
 
 
-final class TodoEntryViewModel: ObservableObject {
-    public func todoFetchDescrpitor() -> FetchDescriptor<Todo> {
+final class TodoEntryViewModel {
+    static func todoFetchDescrpitor() -> FetchDescriptor<Todo> {
         let predicate = #Predicate<Todo> { _ in true }
         let sort = [SortDescriptor(\Todo.isCompleted, order: .forward),
                     SortDescriptor(\Todo.lastModified, order: .forward)

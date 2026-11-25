@@ -8,8 +8,10 @@ enum GenerationError: Error {
     case noPrompt
 }
 
+// Main actor: SwiftUI reads this state, and the repository uses SwiftData's main context.
 @Observable
-class TodoViewModel {
+@MainActor
+final class TodoViewModel {
     
     public var lastAddedTodoID: PersistentIdentifier?
     
@@ -63,6 +65,7 @@ class TodoViewModel {
             print("Generation error: \(error)")
             isGenerating = false
         }
+        languageModel.resetSession()
     }
 
     public func prewarm() {

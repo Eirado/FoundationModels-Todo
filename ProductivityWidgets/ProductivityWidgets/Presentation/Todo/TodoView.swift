@@ -139,7 +139,6 @@ struct StreamingTodoRowView: View {
                         endPoint: .trailing
                     )
                     .frame(width: UIScreen.main.bounds.width * 8.9, height: 800)
-                    .blur(radius: 10)
                     .offset(x: animate ? UIScreen.main.bounds.width * -3.4 : UIScreen.main.bounds.width * 4)
                     .rotationEffect(.degrees(20)).rotationEffect(.degrees(180))
                 )
