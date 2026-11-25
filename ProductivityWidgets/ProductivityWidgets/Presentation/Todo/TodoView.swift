@@ -83,8 +83,6 @@ struct TodoView: View, SizedViewProtocol {
                     )
                 }
             }
-            .glassEffect(isEnabled: false)
-            .glassEffectTransition(.identity, isEnabled: false)
             .navigationTitle("Todo List")
         }.task {
             viewModel.prewarm()

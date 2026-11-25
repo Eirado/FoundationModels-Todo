@@ -98,7 +98,7 @@ private extension TodoViewModel {
         
         // Stream updates to UI without persisting
         for try await partialResponse in stream {
-            if let todoDescriptions = partialResponse.todoDescription {
+            if let todoDescriptions = partialResponse.content.todoDescription {
                 streamingTodos = todoDescriptions
             }
         }
