@@ -45,9 +45,13 @@ https://github.com/user-attachments/assets/33d33c0a-aaaf-4cba-9650-5504d1e699e8
 
 ## Run it
 
+> [!IMPORTANT]
+> Task generation only works on a device that supports Apple Intelligence, with Apple
+> Intelligence turned on: an iPhone 15 Pro or later, or the Simulator on a Mac that supports it.
+> Anywhere else the on-device model isn't available, so the to-do list and the widget work but
+> generation doesn't.
+
 - Xcode 26 or later. The app and the widget target iOS 26. Last built with Xcode 27.1.
-- Apple Intelligence must be on, on the iPhone or on the Mac that runs the Simulator. Without it
-  the model isn't available and generation fails.
 - Pick your team under Signing & Capabilities for both targets, and replace the App Group
   `group.GabrielEirado.widgets` in both entitlements files with one of yours.
 
